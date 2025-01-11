@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>crt</title>
+		<link rel="stylesheet" href="scanlines.css">
+		<link rel="stylesheet" href="crt.css">
+		<style>
+			body, html {
+			margin: 0;
+			padding: 0;
+			height: 100%;
+			overflow: hidden;
+			font-family: 'Tahoma', sans-serif;
+			background-color: #222;
+			}
+			.desktop {
+			width: 100vw;
+			height: 100vh;
+			background-size: cover;
+			background-position: center;
+			position: relative;
+			overflow: hidden;
+			}
+			.crt-frame {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			}
+			#screen {
+			background-image: url('https://c4.wallpaperflare.com/wallpaper/46/997/184/windows-xp-pug-dog-wallpaper-preview.jpg');
+			background-repeat: no-repeat;
+			background-size: cover;
+			width: 100%;
+			height: 100%;
+			position: relative;
+			overflow: hidden;
+			}
+			#content {
+			width: 100%;
+			height: 100%;
+			margin: 4%;
+			margin: 3% 4% 2% 4%;
+			position: relative;
+			transform-origin: center center;
+			transition: all 0.1s ease;
+			}
+			.icon {
+			width: 64*2px;
+			height: 80*2px;
+			position: absolute;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: flex-start;
+			cursor: pointer;
+			}
+			.icon-image {
+			width: 80px;
+			height: 80px;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-position: center;
+			}
+			.icon-text {
+			margin-top: 5px;
+			font-size: 12px;
+			text-align: center;
+			color: #fff;
+			text-shadow: 1px 1px #000;
+			}
+			#menu {
+			position: absolute;
+			width: 97%;
+			background-color: #00AA33;
+			bottom:7.5%;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			height: 4vw;
+			right:4vw;
+			}
+			.menuIt {
+			display: flex;
+			flex-direction: row;
+			gap: 1vw;
+			}
+			.menuIt a {
+			color: #fff;
+			text-decoration: none;
+			font-size: 12px;
+			padding: 0 0 1vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1vw;
+			gap: 0.5vw;
+			height: 2vw;
+			width: auto;
+			}
+			.clock{
+			margin-right: 5vw;
+			color: #fff;
+			font-size: 1vw;
+			margin-bottom: 0.6vw;
+			}
+			.windows{
+			display: none;
+			top: 30%;
+			left: 25%;
+			position: fixed;
+			color: #AAFFDD;
+			border-collapse: separate;
+			border: 2px solid #AFFFDF;
+			background-color: #00AA33; 
+			box-shadow: 25px 35px rgba(0, 25, 0, 0.5);
+			width: 50%;
+			}
+			.tdWindow a{
+			display: block;
+			color: #fff;
+			font-size: 1vw;
+			width: 15vw;   
+			}
+		</style>
+	</head>
+	<body onload="loadColor()">
+		<div class="desktop" style="filter: url(#SphereMapTest) url(#colorfill);">
+			<div class="ignore" style="display: none; position: absolute; top:-9999; z-index:0; visibility: hidden;">
+				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg-root" width="381" height="166" z-index="-1">
+					<title id="test-title">filters-dispMap-BE-16</title>
+					<desc id="test-desc">Test which verifies the basic facilities of feDisplacementMap.</desc>
+					<defs>
+						<filter id="SphereMapTest" filterUnits="objectBoundingBox" x="-0.45" y="-1.29" width="1.6" height="3.5">
+							<feImage id="mapa" result="Map" xlink:href="img/sphere_wide_1.png" />
+							<feDisplacementMap id="despMap" in="SourceGraphic" in2="map" scale="100" xChannelSelector="R" yChannelSelector="G" />
+						</filter>
+						<filter id="colorfill" z-index="1">
+							<feColorMatrix id="colorMain" type="matrix" in="SourceGraphic" result="B"
+								values="
+								1	0	0	0	0
+								0	1	0	0	0
+								0	0	1	0	0
+								0	0	0	1	0
+								">
+								<animate id="colA" attributeName="values" begin="0s" dur="3.5s" restart_="always" repeatCount="1" values="
+									1	0	0	0	0
+									0	1	0	0	0
+									0	0	1	0	0
+									0	0	0	1	0;
+									1	0	0	0	0
+									0	1	0	0	0
+									0	0	1	0	0
+									0	0	0	1	0
+									" fill="freeze"/>
+							</feColorMatrix>
+							<feMerge>
+								<feMergeNode in="A"/>
+								<feMergeNode in="B"/>
+							</feMerge>
+						</filter>
+						<filter id="secondFill" z-index="0">
+							<feColorMatrix id="colorSec" type="matrix" in="SourceGraphic"
+								values="
+								0	0	0	0	0
+								0	1	0	0	0
+								0	0	0	0	0
+								0	0	0	1	0 
+								"/>
+						</filter>
+						<filter id="brightness">
+							<feComponentTransfer>
+								<feFuncR id="brR" type="linear" slope="1"/>
+								<feFuncG id="brG" type="linear" slope="1"/>
+								<feFuncB id="brB" type="linear" slope="1"/>
+							</feComponentTransfer>
+						</filter>
+						<filter id="contrast">
+							<feComponentTransfer>
+								<feFuncR id="conR" type="linear" slope="1" intercept="0"/>
+								<feFuncG id="conG" type="linear" slope="1" intercept="0"/>
+								<feFuncB id="conB" type="linear" slope="1" intercept="0"/>
+							</feComponentTransfer>
+						</filter>
+					</defs>
+				</svg>
+			</div>
+			<div id="screensaver" style="position: absolute; bottom: 5vw; right: 5.5vw; width: 97%; height: 95%; display: none; z-index: 1000; visibility: visible;">
+				<a href="#" onclick="powerOn();return false;">
+				<img id="logo" src="https://macrohard-winux.github.io/images/Winux_7_logo.png" alt="Bouncing Logo" style="position: absolute; width: 100px; height: 100px;">
+				</a>
+			</div>
+			<div id="screen">
+				<div id="content">
+               <a onclick="showWin('retroWindow','block');return false;">
+                  <div class="icon" style="top: 20px; left: 20px;">
+                     <div class="icon-image" style="background-image: url('img/image.png'); background-size: cover;"></div>
+                     <div class="icon-text">My Computer</div>
+                  </div>
+               </a>
+               <a onclick="showWin('retroWindow2','block');return false;">
+                  <div class="icon" style="top: 120px; left: 20px;">
+                     <div class="icon-image" style="background-image: url('https://icons.iconarchive.com/icons/dtafalonso/modern-xp/512/ModernXP-75-Trash-icon.png');"></div>
+                     <div class="icon-text">Recycle Bin</div>
+                  </div>
+               </a>
+					<div id="menu">
+						<div class="menuIt">
+							<div class="start" style="margin-left: 1vw;">
+								<a href="#" onclick="start();">  
+								<img src="https://macrohard-winux.github.io/images/Winux_7_logo.png" alt="macrohard" style="height: 2vw;">
+								Start
+								</a>
+							</div>
+                     <div class="start" style="margin-left: 1vw;">
+								<a href="#" onclick="showWin('paintWindow','block');return false;">  
+								Paint
+								</a>
+							</div>
+						</div>
+						<div class="menuIt clock">
+							<span id="clock">2025/01/10 11:27:17</span>
+						</div>
+					</div>
+					<div class="windowsGrp">
+						<div class="start">
+							<div class="start-menu" id="start-menu" style="display:none; position: absolute; bottom: 15%; left: -0.5vw; width: 20vw; background-color: #C0C0C0; border: 2px solid #000; z-index: 1000; box-shadow: 5px 5px 15px rgba(0,0,0,0.5);">
+								<a href="#" onclick="showWin('colorControls','block');return false;" style="text-decoration: none; color:#009900">
+									<div class="start-menu-item" style="padding: 0.5vw; font-size: 1vw; cursor: pointer; display: flex; align-items: center;">
+										Color Controls
+									</div>
+								</a>
+								<a href="#" onclick="showWin('crtControls','block');return false;" style="text-decoration: none; color:#009900">
+									<div class="start-menu-item" style="padding: 0.5vw; font-size: 1vw; cursor: pointer; display: flex; align-items: center;">
+										CRT Controls
+									</div>
+								</a>
+								<a href="#" onclick="powerOff()" style="text-decoration: none; color:#009900">
+									<div class="start-menu-item" style="padding: 0.5vw; font-size: 1vw; cursor: pointer; display: flex; align-items: center;">
+										Shutdown
+									</div>
+								</a>
+							</div>
+						</div>
+						<div id="colorControls" class="windows">
+							<table cellspacing="0" cellpadding="4" border="1" width="100%" class="tableList">
+								<tr>
+									<td colspan="3" class="tdtitles tdWindow" style="color: #fff;">
+										<center>
+											Color Controls
+										</center>
+									</td>
+								</tr>
+								<tr>
+									<td align="center" class="manos tdWindow"><a border="0" onclick ="setColor('colA','svg-root','originalC')"> origi </a> </td>
+									<td align="center" class="manos tdWindow"><a border="0" onclick ="setColor('colA','svg-root','blueC')"> blue </a> </td>
+									<td align="center" class="manos tdWindow"><a border="0" onclick ="setColor('colA','svg-root','greenC')"> green </a> </td>
+								</tr>
+								<tr>
+									<td align="center" class="manos tdWindow"><a border="0" onclick ="setColor('colA','svg-root','redC')"> red </a> </td>
+									<td align="center" class="manos tdWindow"><a border="0" onclick ="setColor('colA','svg-root','yellowC')"> yellow </a> </td>
+									<td align="center" class="manos tdWindow"><a border="0" onclick ="setColor('colA','svg-root','grayC')"> gray </a> </td>
+								</tr>
+								<tr>
+									<td align="center"  colspan=3 class="tdWindow">
+										<span class="textbutton" onclick="showWin('colorControls','none');return false;" style="color: #fff;">
+										<br>[ OK ]<br><br><br>
+										</span>
+									</td>
+								</tr>
+							</table>
+						</div>
+						<div id="crtControls" class="windows tdWindow">
+							<div class="crtControlInt" style="margin-left: 0.5vw;">
+								<label for="slider-x">Scale</label>:
+								<input class="slider" id="slider-x" type="range" min="0" max="5000" value="100" step="5" oninput="moveSlider(this, 'scale');this.nextElementSibling.value = this.value" onmouseover="this.nextElementSibling.value = this.value"><output>100</output>
+								<br>
+								<label for="slider-mx">x Filter</label>:
+								<input class="slider" id="slider-mx" type="range" min="-0.53" max="-0.17" value="-0.37" step="0.01" oninput="moveSMT(this, 'x');this.nextElementSibling.value = this.value"><output>24</output>
+								<label for="slider-my">y Filter</label>:
+								<input class="slider" id="slider-my" type="range" min="-1.55" max="-0.71" value="-1.05" step="0.01" oninput="moveSMT(this, 'y');this.nextElementSibling.value = this.value"><output>24</output><br>
+								<label for="slider-mw">w Filter</label>:
+								<input class="slider" id="slider-mw" type="range" min="1.45" max="2.1" value="1.5" step="0.05" oninput="moveSMT(this, 'width');this.nextElementSibling.value = this.value"><output>24</output>
+								<label for="slider-mh">h Filter</label>:
+								<input class="slider" id="slider-mh" type="range" min="2.5" max="4.05" value="1" step="0.05" oninput="moveSMT(this, 'height');this.nextElementSibling.value = this.value"><output>24</output><br>
+								<label for="slider-cw">w Root</label>:
+								<input class="slider" id="slider-cw" type="range" min="0" max="1200" value="640" step="1" oninput="moveRoot(this, 'width');this.nextElementSibling.value = this.value"><output>24</output>
+								<label for="slider-ch">h Root</label>:
+								<input class="slider" id="slider-ch" type="range" min="0" max="1024" value="480" step="1" oninput="moveRoot(this, 'height');this.nextElementSibling.value = this.value"><output>24</output><br>
+							</div>
+							<center><span class="textbutton" onclick="showWin('crtControls','none');return false;"><br>[ OK ]<br><br></span></center>
+						</div>
+						<div id="paintWindow" class="windows" style="display: none; top: 15%; left: 30%; width: 500px; height: 400px; position: absolute;">
+							<div class="window-header" style="background-color: #000080; color: #fff; padding: 0.2vw; font-size: 1vw; display: flex; justify-content: space-between; align-items: center; cursor: move;">
+								<span>Paint</span>
+								<button onclick="document.getElementById('paintWindow').style.display='none'" style="background-color: #ff0000; color: #fff; border: none; cursor: pointer;">X</button>
+							</div>
+							<div class="window-content" style="padding: 10px; background-color: #c0c0c0;">
+								<div style="margin-bottom: 10px;">
+									<input type="color" id="colorPicker" value="#000000">
+									<input type="range" id="brushSize" min="1" max="20" value="5">
+									<button onclick="clearCanvas()">Clear</button>
+								</div>
+								<canvas id="paintCanvas" width="460" height="320" style="background-color: white; border: 1px solid #000;"></canvas>
+							</div>
+						</div>
+						</script>
+						<div id="retroWindow" class="windows" style="display: block; top: 10%; left: 10%; width: 40%; height: 40%; position: absolute;">
+							<div class="window-header" style="background-color: #000080; color: #fff; padding: 0.2vw; font-size: 1vw; display: flex; justify-content: space-between; align-items: center; cursor: move;">
+								<span>This PC</span>
+								<button onclick="closeWindow()" style="background-color: #ff0000; color: #fff; border: none; cursor: pointer;">X</button>
+							</div>
+							<div class="window-content" style="padding: 1vw; background-color: #707070; height: calc(100% - 2vw);">
+								<div style="font-size: 1vw; color: #fff; padding: 0.5vw; background-color: #505050;">
+									C:\Users\NotIshi\Documents
+								</div>
+								<div class="icon" style="top: 6vw; left: 2vw;">
+									<div class="icon-image" style="background-image: url('https://64.media.tumblr.com/94eb4c24198978507319e8689cad89ac/45c8a5b7153403c2-bc/s540x810/989089678e3a98bbb691bafd7a22c12c44cf90b9.png'); background-size: 6vw;"></div>
+									<div class="icon-text" style="font-size: 0.8vw;">HackClub <br> Secrets</div>
+								</div>
+								<div class="icon" style="top: 6vw; left: 8vw;">
+									<div class="icon-image" style="background-image: url('https://64.media.tumblr.com/94eb4c24198978507319e8689cad89ac/45c8a5b7153403c2-bc/s540x810/989089678e3a98bbb691bafd7a22c12c44cf90b9.png'); background-size: 6vw;"></div>
+									<div class="icon-text" style="font-size: 0.8vw;">Unreleased <br> High-Seas <br> Shop Items</div>
+								</div>
+							</div>
+						</div>
+                  <div id="retroWindow2" class="windows" style="display: none; top: 10%; left: 10%; width: 40%; height: 40%; position: absolute;">
+							<div class="window-header" style="background-color: #000080; color: #fff; padding: 0.2vw; font-size: 1vw; display: flex; justify-content: space-between; align-items: center; cursor: move;">
+								<span>This PC</span>
+								<button onclick="showWin('retroWindow2','none')" style="background-color: #ff0000; color: #fff; border: none; cursor: pointer;">X</button>
+							</div>
+							<div class="window-content" style="padding: 1vw; background-color: #707070; height: calc(100% - 2vw);">
+								<div style="font-size: 1vw; color: #fff; padding: 0.5vw; background-color: #505050;">
+									C:\Recycle Bin
+								</div>
+								<div class="icon" style="top: 6vw; left: 2vw;">
+									<div class="icon-image" style="background-image: url('https://64.media.tumblr.com/94eb4c24198978507319e8689cad89ac/45c8a5b7153403c2-bc/s540x810/989089678e3a98bbb691bafd7a22c12c44cf90b9.png'); background-size: 6vw;"></div>
+									<div class="icon-text" style="font-size: 0.8vw;">Blahaj <br> Pictures</div>
+								</div>
+								<div class="icon" style="top: 6vw; left: 8vw;">
+									<div class="icon-image" style="background-image: url('https://64.media.tumblr.com/94eb4c24198978507319e8689cad89ac/45c8a5b7153403c2-bc/s540x810/989089678e3a98bbb691bafd7a22c12c44cf90b9.png'); background-size: 6vw;"></div>
+									<div class="icon-text" style="font-size: 0.8vw;">Fraud <br> Team <br> Bribes</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="scanline" class="scanline"></div>
+			</div>
+			<img class="crt-frame" id="crt-frame" style="z-index: 100000;" src="img/crt-frame.png" alt="CRT Frame">
+			<div class="scanline">
+				<img class="cristal" id="image" src="img/texture.png" style="position: fixed; left:0; top:0">
+			</div>
+		</div>
+		<script>         
+			// BLUE COLOR
+			// 				0	0.15	0	0	0
+			// 				0	0.5	0	0	0
+			// 				0	1	1	0	0
+			// 				1	1	1	1	0 
+			//
+			// YELLOW COLOR
+			// 				0	1	0	0	0
+			// 				0	1	0	0	0
+			// 				0	0	0	0	0
+			// 				0	0	0	1	0
+			//
+			// GREEN COLOR
+			// 				0	0	0	0	0
+			// 				0	1	0	0	0
+			// 				0	0	0	0	0
+			// 				0	0	0	1	0
+			// 
+			// RED COLOR
+			// 				0	1	0	0	0
+			// 				0	0.25	0	0	0
+			// 				0	0.25	0	0	0
+			// 				0	1	0	1	0
+			//
+			// GRAY COLOR
+			// 				0	1	0	0	0
+			// 				0	1	0	0	0
+			// 				0	1	0	0	0
+			// 				1	1	0	1	0
+			// 
+			// ORIGINAL COLOR
+			// 				1	0	0	0	0
+			// 				0	1	0	0	0
+			// 				0	0	1	0	0
+			// 				0	0	0	1	0
+			
+			function getRndInteger(min, max){
+			    return Math.floor(Math.random() * (max - min + 1) ) + min;
+			}
+			var colorAnt = "originalC";
+			
+			function setColor(wich, rootEl, color)
+			{
+			    var arrColors = {}
+			    arrColors['yellowC'] = "0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0";
+			    arrColors['greenC'] = "0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0";
+			    arrColors['blueC'] = "0 0.15 0 0 0 0 0.6 0 0 0 0 0.8 1 0 0 1 1 1 1 0";
+			    arrColors['redC'] = "0 0.8 0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 0 0.9 0.8 1 0";
+			    arrColors['grayC'] = "0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 1 0 1 0";
+			    arrColors['originalC'] = "1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0";
+			
+			    colorAnt = color;
+			    
+			    document.getElementById(wich).setAttribute("dur","0.75s");
+			    document.getElementById(wich).setAttribute("fill","freeze");
+			    document.getElementById(wich).setAttribute("begin","0s");
+			    document.getElementById(wich).setAttribute("repeatCount","1");
+			    
+			    var colrT = arrColors[colorAnt] + "; " + arrColors['grayC'] + "; " + arrColors[color];
+			    
+			    document.getElementById(wich).setAttribute("values",colrT);
+			
+			}
+			//function getRndInteger(min, max)
+			function loadColor()
+			{
+			    var arrCnames = ['blueC', 'yellowC', 'greenC', 'redC', 'grayC', 'originalC'];
+			    //TODO: CHANGE THIS IN PROD
+			    // setColor('colA','svg-root',arrCnames[getRndInteger(0, 5)]);
+			    setColor('colA','svg-root','originalC');
+			    makeWindowDraggable();
+			}
+			
+			var div_menu = document.getElementById("menu");
+			var div_content = document.getElementById("content");
+			
+			startTime();
+			
+			function showWin(wich,vis)
+			{
+			    document.getElementById(wich).style.display = vis;
+			    
+			}
+			
+			var moveSlider = function(slider, direction) {
+			   var value = slider.value;
+			   var circle = document.getElementById("despMap");
+			   circle.setAttributeNS(null, "scale", value);
+			}
+			
+			var moveSMT = function(slider, direction) {
+			   var value = slider.value;
+			   var circle = document.getElementById("SphereMapTest");
+			   circle.setAttributeNS(null, direction, value);
+			}
+			
+			var moveRoot = function(slider, direction) {
+			   var value = slider.value;
+			   var circle = document.getElementById("svg-root");
+			   circle.setAttributeNS(null, direction, value);
+			}
+			
+			
+			function powerOff()
+			{
+			    document.getElementById("screensaver").style.visibility = "visible";
+			
+			    document.getElementById("screen").style.opacity = "0%";
+			    document.getElementById("scanline").style.opacity = "0%";
+			
+			    document.getElementById("screen").style.visibility = "hidden";
+			    document.getElementById("scanline").style.visibility = "hidden";
+			    document.getElementById("scanline").style.display = "none";
+			    
+			    
+			    let logo = document.getElementById('logo');
+			    let screensaver = document.getElementById('screensaver');
+			    let posX = 0, posY = 0;
+			    let velX = 2, velY = 2;
+			
+			    console.log(document.getElementById('crt-frame').style.zIndex);
+			    console.log(document.getElementById('logo').style.zIndex);
+			
+			    function updatePosition() {
+			    posX += velX;
+			    posY += velY;
+			
+			    if (posX + logo.clientWidth >= window.innerWidth || posX <= 0) {
+			        velX = -velX;
+			    }
+			    if (posY + logo.clientHeight >= window.innerHeight || posY <= 0) {
+			        velY = -velY;
+			    }
+			
+			    logo.style.left = posX + 'px';
+			    logo.style.top = posY + 'px';
+			    }
+			
+			    function startScreensaver() {
+			    screensaver.style.display = 'block';
+			    setInterval(updatePosition, 1);
+			    }
+			
+			    function stopScreensaver() {
+			    screensaver.style.display = 'none';
+			    }
+			
+			    startScreensaver();
+			}
+			
+			function powerOn()
+			{
+			    document.getElementById("screensaver").style.visibility = "hidden";
+			    document.getElementById("screensaver").style.display = "none";
+			
+			    document.getElementById("screen").style.opacity = "100%";
+			    document.getElementById("scanline").style.opacity = "100%";
+			
+			    document.getElementById("screen").style.visibility = "visible";
+			    document.getElementById("scanline").style.visibility = "visible";
+			    document.getElementById("scanline").style.display = "block";
+			}
+			
+			function start(){
+			    if(document.getElementById("start-menu").style.display == "block")
+			    {
+			        showWin('start-menu','none');
+			    }
+			    else if(document.getElementById("start-menu").style.display == "none")
+			    {
+			        showWin('start-menu','block');
+			    }
+			}
+			function closeWindow() {
+			    document.getElementById('retroWindow').style.display = 'none';
+			}
+			
+			function makeWindowDraggable() {
+			    const windowElement = document.getElementById('retroWindow');
+			    const header = windowElement.querySelector('.window-header');
+			    let offsetX = 0, offsetY = 0, isDragging = false;
+			
+			    header.addEventListener('mousedown', (e) => {
+			        isDragging = true;
+			        offsetX = e.clientX - windowElement.offsetLeft;
+			        offsetY = e.clientY - windowElement.offsetTop;
+			    });
+			
+			    document.addEventListener('mousemove', (e) => {
+			        if (isDragging) {
+			            windowElement.style.left = `${e.clientX - offsetX}px`;
+			            windowElement.style.top = `${e.clientY - offsetY}px`;
+			        }
+			    });
+			
+			    document.addEventListener('mouseup', () => {
+			        isDragging = false;
+			    });
+			}
+			
+			function startTime() {
+			    const today = new Date();
+			    let y = today.getFullYear();
+			    let M = today.getUTCMonth() + 1;
+			    let d = today.getDate();
+			    let h = today.getHours();
+			    let m = today.getMinutes();
+			    let s = today.getSeconds();
+			    M = checkTime(M);
+			    d = checkTime(d);
+			    m = checkTime(m);
+			    s = checkTime(s);
+			    document.getElementById('clock').innerHTML =  y + "/" + M + "/" + d + " " + h + ":" + m + ":" + s;
+			    setTimeout(startTime, 1000);
+			}
+			
+			function checkTime(i) {
+			    if (i < 10) {i = "0" + i}; 
+			    return i;
+			}
+
+         const canvas = document.getElementById('paintCanvas');
+         const ctx = canvas.getContext('2d');
+         let isDrawing = false;
+         let lastX = 0;
+         let lastY = 0;
+
+         canvas.addEventListener('mousedown', startDrawing);
+         canvas.addEventListener('mousemove', draw);
+         canvas.addEventListener('mouseup', stopDrawing);
+         canvas.addEventListener('mouseout', stopDrawing);
+
+         function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+         }
+
+         function draw(e) {
+            if (!isDrawing) return;
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.strokeStyle = document.getElementById('colorPicker').value;
+            ctx.lineWidth = document.getElementById('brushSize').value;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+         }
+
+         function stopDrawing() {
+            isDrawing = false;
+         }
+
+         function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+         }
+
+         const paintWindow = document.getElementById('paintWindow');
+         const paintHeader = paintWindow.querySelector('.window-header');
+         let paintOffsetX = 0, paintOffsetY = 0, isPaintDragging = false;
+
+         paintHeader.addEventListener('mousedown', (e) => {
+            isPaintDragging = true;
+            paintOffsetX = e.clientX - paintWindow.offsetLeft;
+            paintOffsetY = e.clientY - paintWindow.offsetTop;
+         });
+
+         document.addEventListener('mousemove', (e) => {
+            if (isPaintDragging) {
+                  paintWindow.style.left = `${e.clientX - paintOffsetX}px`;
+                  paintWindow.style.top = `${e.clientY - paintOffsetY}px`;
+            }
+         });
+
+         document.addEventListener('mouseup', () => {
+            isPaintDragging = false;
+         });
+		</script>
+	</body>
+</html>
